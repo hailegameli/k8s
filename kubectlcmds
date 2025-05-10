@@ -51,17 +51,56 @@ ______________________________________________________________
 
 #####k8scmd to create pod #####
 
-kubectl run mypod --restart=Never --image=nginx
+kubectl run nginx-pod --image=nginx:latest -n sai
 
-######k8s to create deployment ######
+kubectl expose pod nginx-pod --type=NodePort --port=80 -n sai
 
-kubectl create deployment mydeployment --image=nginx -n namespace
+### k8scmd deployment######
 
-kubectl get deployment -n namespace
+kubectl create deployment nginx-deployment --image=nginx:latest -n sai
 
-kubectl get pods -n namespace
+kubectl expose deployment nginx-deployment --type=NodePort --port=80 -n sai
 
-kubectl delete deployment/mydeployment
+#####
+
+
+#####deploy file#####
+#cat deploy.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+##svc file##
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  type: NodePort
 
 
 
